@@ -192,43 +192,49 @@ vector<string> LinuxParser::CpuUtilization() {
 
 // DONE: Read and return the total number of processes
 int LinuxParser::TotalProcesses() { 
-  int val; 
-  string value, key, line ; 
-  std::ifstream filestream(kProcDirectory + kStatFilename); 
-  if (filestream.is_open()){
-    while(std::getline(filestream, line)){
-      std::istringstream linestream;
-      while(linestream >> key >> value){
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+   long totalProcesses = 0;
+  if (filestream.is_open()) {
+      string line;
+      bool processNumberFound = false;
+      
+      while (std::getline(filestream, line) && !processNumberFound) {
+        std::istringstream linestream(line);
+        string key;
+        linestream >> key;
         if (key == "processes")
-        {
-          val = std::stoi(value); 
+        {          
+            linestream >> totalProcesses;
+            processNumberFound = true;
         }
-        
       }
-    }
-  }
-  return val; 
-}
 
+  }
+  return totalProcesses; 
+  }
 // DONE : Read and return the number of running processes
 int LinuxParser::RunningProcesses() { 
-  int val; 
-  string line, key, value ; 
-  std::ifstream filestream(kProcDirectory + kStatFilename); 
-  if (filestream.is_open()){
-    std::getline (filestream, line); 
-    std::istringstream linestream(line);
-    while(linestream >> key >> value){
-      if (key == "procs_running")
-      {
-        val = std::stoi(value);
-      }
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+   long runningProcesses = 0;
+  if (filestream.is_open()) {
+      string line;
+      bool processNumberFound = false;
       
-    }
-    
+      while (std::getline(filestream, line) && !processNumberFound) {
+        std::istringstream linestream(line);
+        string key;
+        linestream >> key;
+        if (key == "procs_running")
+        {          
+            linestream >> runningProcesses;
+            processNumberFound = true;
+        }
+      }
+
   }
-  return val; 
-}
+  return runningProcesses; 
+   }
+
 
 // DONE: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
