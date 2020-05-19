@@ -13,6 +13,7 @@ using std::vector;
 
 Process::Process(int pid){
     pid_ =pid ;
+    cpuUtil_ = Process::CpuUtilization(); 
      
     
 }
@@ -21,18 +22,12 @@ int Process::Pid() { return pid_; }
 
 // DONE: Return this process's CPU utilization
 float Process::CpuUtilization() { 
-long active_jiffies = LinuxParser::ActiveJiffies(pid_);
-    long system_jiffies = LinuxParser::ActiveJiffies();
-
-    long delta_a = active_jiffies - active_jiffies_;
-    long delta_s = system_jiffies - system_jiffies_;
-
-    active_jiffies_ = active_jiffies;
-    system_jiffies_ = system_jiffies;
-
-    cpuUtil_ = (float) delta_a / (float) delta_s; 
-
-    return cpuUtil_;
+long upTime = LinuxParser::UpTime(); // System Uptime
+  long totalTime = LinuxParser::ActiveJiffies(pid); // Process total time
+  long startTime = LinuxParser::UpTime(pid); // Process Uptime
+  long seconds = upTime - (startTime / sysconf(_SC_CLK_TCK));
+    
+  return ((float)(totalTime / sysconf(_SC_CLK_TCK))) / (float)seconds;
 }
 
 // DONE: Return the command that generated this process
