@@ -20,7 +20,20 @@ Process::Process(int pid){
 int Process::Pid() { return pid_; }
 
 // DONE: Return this process's CPU utilization
-float Process::CpuUtilization() { return cpu_utilization_; }
+float Process::CpuUtilization() { 
+long active_jiffies = LinuxParser::ActiveJiffies(pid_);
+    long system_jiffies = LinuxParser::ActiveJiffies();
+
+    long delta_a = active_jiffies - active_jiffies_;
+    long delta_s = system_jiffies - system_jiffies_;
+
+    active_jiffies_ = active_jiffies;
+    system_jiffies_ = system_jiffies;
+
+    cpuUtil_ = (float) delta_a / (float) delta_s; 
+
+    return cpuUtil_;
+}
 
 // DONE: Return the command that generated this process
 string Process::Command() { return LinuxParser::Command(pid_); }
