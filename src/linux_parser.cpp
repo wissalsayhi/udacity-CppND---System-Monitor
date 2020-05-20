@@ -189,18 +189,45 @@ vector<string> LinuxParser::CpuUtilization() {
   return jiffies_list; 
 
  }
+ // Cpu utilizationfor specific process
+ float LinuxParser::CpuUtilProcess(int pid){  
+
+   string line;
+  vector<string> columns;
+  string column;
+  float util{0.0};
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if(stream.is_open()) {
+    getline(stream, line);
+    std::istringstream linestream(line);
+    while(linestream.good()) {
+      getline(linestream, column, ' ');
+      columns.push_back(column);
+    }
+    //totalTime = utime + stime
+    // with child processes totalTime += cutime + cstime
+    int totalProcessTicks = stoi(columns[13]) + stoi(columns[14]) + stoi(columns[15]) + stoi(columns[16]);
+    float totalProcessTime = totalProcessTicks / (float)sysconf(_SC_CLK_TCK);
+    long totalSeconds = UpTime() - UpTime(pid);
+    util = totalSeconds != 0 ? (totalProcessTime/(float)totalSeconds) : 0.0;
+  }
+  return util;
+
+ }
 
 // DONE: Read and return the total number of processes
+
+
 int LinuxParser::TotalProcesses() { 
   std::ifstream filestream(kProcDirectory + kStatFilename);
    long totalProcesses = 0;
   if (filestream.is_open()) {
-      string line;
+      std::string line;
       bool processNumberFound = false;
       
       while (std::getline(filestream, line) && !processNumberFound) {
         std::istringstream linestream(line);
-        string key;
+        std::string key;
         linestream >> key;
         if (key == "processes")
         {          
@@ -212,17 +239,19 @@ int LinuxParser::TotalProcesses() {
   }
   return totalProcesses; 
   }
-// DONE : Read and return the number of running processes
+
+  // DONE : Read and return the number of running processes
+  
 int LinuxParser::RunningProcesses() { 
   std::ifstream filestream(kProcDirectory + kStatFilename);
    long runningProcesses = 0;
   if (filestream.is_open()) {
-      string line;
+      std::string line;
       bool processNumberFound = false;
       
       while (std::getline(filestream, line) && !processNumberFound) {
         std::istringstream linestream(line);
-        string key;
+        std::string key;
         linestream >> key;
         if (key == "procs_running")
         {          
