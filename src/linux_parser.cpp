@@ -208,7 +208,7 @@ vector<string> LinuxParser::CpuUtilization() {
     // with child processes totalTime += cutime + cstime
     int totalProcessTicks = stoi(columns[13]) + stoi(columns[14]) + stoi(columns[15]) + stoi(columns[16]);
     float totalProcessTime = totalProcessTicks / (float)sysconf(_SC_CLK_TCK);
-    long totalSeconds = UpTime() - UpTime(pid);
+    long totalSeconds = UpTime(pid);
     util = totalSeconds != 0 ? (totalProcessTime/(float)totalSeconds) : 0.0;
   }
   return util;
